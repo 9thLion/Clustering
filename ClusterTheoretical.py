@@ -21,15 +21,27 @@ print(X.shape)
 #plt.show()
 #print(X.shape)
 #clu.Kmeans(X)
-Color, Centroids = clu.Kmeans(X) #returns the color scheme of the clusters as a list
-print(Centroids.T)
+Centroids, Labels = clu.Kmeans(X, reps=5) #returns the Labels of the clusters as a list
 
-plt.subplot(121)
-plt.scatter(X[0],X[1], c=Color)
-plt.scatter(Centroids.T[0],Centroids.T[1], c='c')
+plt.subplot(221)
+plt.title('After Kmeans')
+plt.scatter(X[0],X[1], c=Labels)
+#Why do I have to use the transpose of Centroids for plotting when the ones that end up one plot are the rows?
+plt.scatter(Centroids.T[0],Centroids.T[1])
+
+plt.subplot(222)
+plt.title('After Mix of Gaussians')
+Means, Labels = clu.MoG(X, reps=3) #returns the Labels of the clusters as a list
+plt.scatter(X[0],X[1], c=Labels)
+#Why do I have to use the transpose of Centroids for plotting when the ones that end up one plot are the rows?
+plt.scatter(Centroids.T[0],Centroids.T[1])
 #Since we know the correct clusters, let's test the effectiveness of this algorithm
 #by separating the data
-plt.subplot(122)
+plt.subplot(223)
+plt.title('True Labels')
 plt.scatter(X1[0],X1[1])
 plt.scatter(X2[0],X2[1], c='g')
+
 plt.show()
+
+
