@@ -3,16 +3,8 @@ import random as ran
 import matplotlib.pyplot as plt
 
 
-def Kmeans(Data, k=2,distance='euclidean', maxiter=25, reps=100): 
+def Kmeans(X, k=2,distance='euclidean', maxiter=1000, reps=100): 
 	print("Now runnning Kmeans..")
-	#Pre-Processing:
-	N = Data.shape[1]
-	meanM=[]
-	for line in Data:
-		meanM.append([np.mean(line)])
-	meanMatrix = np.array([meanM]*N).squeeze().T
-	X = Data - meanMatrix 
-
 	#Define the kmean algorithm:
 	def Kmean(X):
 		#Based on chosen distance function:
@@ -86,10 +78,12 @@ def Kmeans(Data, k=2,distance='euclidean', maxiter=25, reps=100):
 				#Keep the metric, after the many replications of Kmean
 				#we will use it to find the best centroids
 				Flattened=[item for sublist in Distance.values() for item in sublist]
-				TotalDist = sum(Flattened) #total distance within clusters
+				TotalDist = sum(Flattened)
 				break
 
 			elif Iter == maxiter:
+				Flattened=[item for sublist in Distance.values() for item in sublist]
+				TotalDist = sum(Flattened) #total distance within clusters
 				print("Convergence failed after", maxiter, "runs")
 				break
 			else:
@@ -107,15 +101,8 @@ def Kmeans(Data, k=2,distance='euclidean', maxiter=25, reps=100):
 			LabelVector = np.array(col)
 	return(finalcentroids, LabelVector)	
 
-def MoG(Data, K=2, maxiter=100, reps=10):
+def MoG(X, K=2, maxiter=1000, reps=10):
 	print("Now running Mixture of Gaussians...")
-	#Pre-Processing:
-	N = Data.shape[1]
-	meanM=[]
-	for line in Data:
-		meanM.append([np.mean(line)])
-	meanMatrix = np.array([meanM]*N).squeeze().T
-	X = Data - meanMatrix 
 	D=X.shape[0]
 	print("For each initialization, Kmeans algorithm will also be run to calculate the initial means")
 	def OneMoG(X):
@@ -230,3 +217,34 @@ def MoG(Data, K=2, maxiter=100, reps=10):
 			Means = means
 			Labels = labels
 	return(Means, Labels)
+
+def Silhouette(Data, labels):
+	X=Data.T
+	def euc(x,y):
+		return ((sum((x-y)**2))**(1/2))
+	S=[]
+	s=[]
+	for i in set(labels):
+		for x in X[labels==i]:
+			
+			temp=[]
+			for y in X[labels==i]:
+				temp.append(euc(x,y))
+			a=sum(temp)/len(temp)
+
+			temp=[]
+			for y in X[labels!=i]:
+				temp.append(euc(x,y))
+			b=sum(temp)/len(temp)
+
+			s.append((b-a)/max(a,b))
+
+		#We need one vector for each cluster, so merge these lists to one and append on S
+		S.append(s)
+
+	temp=[]
+	for l in S:
+		temp.append(sum(l)/len(l))
+	Sil=sum(temp)/len(temp)
+	return(Sil)
+
