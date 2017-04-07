@@ -3,7 +3,7 @@ import random as ran
 import matplotlib.pyplot as plt
 
 
-def Kmeans(X, k=2,distance='euclidean', maxiter=1000, reps=100): 
+def Kmeans(X, k=2,distance='euclidean', maxiter=10000, reps=100): 
 	print("Now runnning Kmeans..")
 	#Define the kmean algorithm:
 	def Kmean(X):
@@ -84,7 +84,7 @@ def Kmeans(X, k=2,distance='euclidean', maxiter=1000, reps=100):
 			elif Iter == maxiter:
 				Flattened=[item for sublist in Distance.values() for item in sublist]
 				TotalDist = sum(Flattened) #total distance within clusters
-				print("Convergence failed after", maxiter, "runs")
+				print("k-means Convergence failed after", maxiter, "runs")
 				break
 			else:
 				centroids = centroids_new
@@ -204,7 +204,31 @@ def MoG(X, K=2, maxiter=1000, reps=10):
 				mlike = mlike_new
 			Iter+=1
 			if Iter == maxiter:
-				print('Failed to converge after', Iter, 'iterations')
+				print('MoG failed to converge after', Iter, 'iterations')
+				labels=[]
+
+				for x in range(rs.shape[0]):
+					for y in rs[x]:
+						if y!=np.amax(rs[x]):
+							rs[rs==y]=0
+				rs[rs!=0]=1
+				#latent variable uncovered.
+
+				for x in range(rs.shape[0]):
+					for y in range(rs.shape[1]):
+						if rs[x][y] == 1:
+							labels.append(y)
+				labels = np.array(labels)
+
+				distances=[]
+				for x in X.T:
+					euclidean = 1000000
+					for m in means_new:
+						euclidean_new = (sum((x-m)**2))**(1/2)
+						if euclidean_new < euclidean:
+							euclidean = euclidean_new
+					distances.append(euclidean)
+				TotalDist = sum(distances)
 				break
 
 		return(means_new, labels, TotalDist)
@@ -239,11 +263,17 @@ def Silhouette(Data, labels):
 				temp.append(euc(x,y))
 			a=sum(temp)/len(temp)
 
-			#Then find the distance from all other clusters
-			temp=[]
-			for y in X[labels!=i]:
-				temp.append(euc(x,y))
-			b=sum(temp)/len(temp)
+			#Then find the distance from each of the other clusters
+			B=[]
+			for j in set(labels):
+				if j == i:
+					continue
+
+				temp=[]
+				for y in X[labels==j]:
+					temp.append(euc(x,y))
+				B.append((sum(temp)/len(temp)))
+			b=float(min(B))
 			s.append((b-a)/max(a,b))
 
 		#one list for each cluster, appended to another list
