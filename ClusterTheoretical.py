@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ClusterPackage as clu
 import time
+import sklearn.metrics
 #Crafting the Artificial Dataset
 D=2
 N1=220
@@ -16,7 +17,7 @@ X1 = np.random.multivariate_normal(mean, varID(0.5), N1).T #DxN matrix
 X2 = np.random.multivariate_normal(-mean, varID(0.75), N2).T
 X = np.concatenate((X1,X2), axis=1)
 
-K = np.array([2,3,4,5])
+K = np.array([2])
 Sil1=[]
 Sil2=[]
 T1=[]
@@ -27,7 +28,8 @@ for a in K:
 	Centroids, Labels = clu.Kmeans(X, k=a, reps=5) #returns the Labels of the clusters as a vector
 	t2 = time.clock()
 	T1.append(t2-t1)
-	S1 = clu.Silhouette(X, Labels)
+	S1 = sklearn.metrics.silhouette_score(X.T,Labels)
+	print(S1)
 	plt.subplot(121)
 	plt.title('After Kmeans')
 	plt.scatter(X[0],X[1], c=Labels)
@@ -40,7 +42,7 @@ for a in K:
 	Means, Labels = clu.MoG(X, K=a, reps=15) 
 	t2 = time.clock()
 	T2.append(t2-t1)
-	S2 = clu.Silhouette(X, Labels)
+	S2 = sklearn.metrics.silhouette_score(X.T,Labels)
 	plt.scatter(X[0],X[1], c=Labels)
 	plt.scatter(Means.T[0],Means.T[1], marker='x',c='k', alpha=0.7)
 	plt.savefig('Clusters{}.png'.format(a))
@@ -53,21 +55,34 @@ Sil2=np.array(Sil2)
 T1=np.array(T1)
 T2=np.array(T2)
 
+fig = plt.figure()
 
-plt.subplot(121)
-plt.title('K-means validation')
-plt.scatter(K, Sil1) 
-plt.subplot(122)
-plt.title('MoG validation')
-plt.scatter(K, Sil2)
-plt.savefig('Validation Test')
-plt.close()
+ax = fig.add_subplot(121)
+ax.set_title('K-means validation')
+ax.set_xlabel('Number of Clusters')
+ax.set_ylabel('Silhouette Coefficient')
+ax.set_xticks(K)
+ax.scatter(K, Sil1) 
 
-plt.subplot(121)
-plt.title('K-means speed')
-plt.scatter(K, T1)
-plt.subplot(122)
-plt.title('MoG speed')
-plt.scatter(K, T2)
-plt.savefig('Speed Test')
-plt.close()
+ax = fig.add_subplot(122)
+ax.set_title('MoG validation')
+ax.set_xlabel('Number of Clusters')
+ax.set_xticks(K)
+ax.scatter(K, Sil2)
+fig.savefig('Validation Test')
+
+fig = plt.figure()
+
+ax = fig.add_subplot(121)
+ax.set_title('K-means duration')
+ax.set_xlabel('Number of Clusters')
+ax.set_ylabel('Time Elapsed')
+ax.set_xticks(K)
+ax.scatter(K, T1) 
+
+ax = fig.add_subplot(122)
+ax.set_title('MoG duration')
+ax.set_xlabel('Number of Clusters')
+ax.set_xticks(K)
+ax.scatter(K, T2)
+fig.savefig('Speed Test')

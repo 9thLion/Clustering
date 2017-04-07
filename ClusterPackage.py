@@ -218,33 +218,40 @@ def MoG(X, K=2, maxiter=1000, reps=10):
 			Labels = labels
 	return(Means, Labels)
 
+
+#This silhouette function doesn't produce correct results
+#It took me some time and i couldn't figure out why, so i ended up using the built-in
+#instead. I would like some feedback on why this doesn't work though.
 def Silhouette(Data, labels):
-	X=Data.T
+	X=Data.T #Data input will be DxN
 	def euc(x,y):
 		return ((sum((x-y)**2))**(1/2))
 	S=[]
-	s=[]
 	for i in set(labels):
+		s=[]
+		#for every data point with a specific label (for every data point within a specific cluster)
 		for x in X[labels==i]:
-			
+			#First find the distance within the cluster
 			temp=[]
 			for y in X[labels==i]:
+				if euc(x,y)==0: #skip when basically x is y
+					continue
 				temp.append(euc(x,y))
 			a=sum(temp)/len(temp)
 
+			#Then find the distance from all other clusters
 			temp=[]
 			for y in X[labels!=i]:
 				temp.append(euc(x,y))
 			b=sum(temp)/len(temp)
-
 			s.append((b-a)/max(a,b))
 
-		#We need one vector for each cluster, so merge these lists to one and append on S
+		#one list for each cluster, appended to another list
 		S.append(s)
 
 	temp=[]
 	for l in S:
-		temp.append(sum(l)/len(l))
-	Sil=sum(temp)/len(temp)
+		temp.append(sum(l)/len(l)) #silhouette coefficient for each cluster
+	Sil=sum(temp)/len(temp) #total silhouette coefficient
 	return(Sil)
 
