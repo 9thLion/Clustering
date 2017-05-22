@@ -242,10 +242,6 @@ def MoG(X, K=2, maxiter=1000, reps=10):
 			Labels = labels
 	return(Means, Labels)
 
-
-#This silhouette function doesn't produce correct results
-#It took me some time and i couldn't figure out why, so i ended up using the built-in
-#instead. I would like some feedback on why this doesn't work though.
 def Silhouette(Data, labels):
 	X=Data.T #Data input will be DxN
 	def euc(x,y):
