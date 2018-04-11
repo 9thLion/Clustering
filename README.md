@@ -4,9 +4,9 @@ K-means, Mixture of Gaussians and Silhouette Coefficient calculation implemented
 
 # Details
 
-ClusterPackage includes the following functions for clustering: Kmeans, Mixtures of Gaussians and also a function for calculation of the Silhouette coefficient for validation
+ClusterPackage includes functions for clustering (Kmeans and Mixture of Gaussians) as well as a function for calculation of the Silhouette coefficient for validation
 
-ClusterTheoretical is where the Theoretical part is executed and the practical in ClusterPractical respectively
+In ClusterTheoretical the functions are tested on artificial datasets; in ClusterPractical they are used on a real dataset.
 
 PCA package is required for the ClusterPractical to work
 
